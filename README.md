@@ -32,7 +32,7 @@
 ## 公開手順（初回のみ）
 
 1. GitHub で `addin_outlook` という **Public** リポジトリを作り、このフォルダを push する
-2. リポジトリの **Settings → Pages** で Source を「Deploy from a branch」、Branch を `main` / `/ (root)` にする
+2. リポジトリの **Settings → Pages** で Source を「**GitHub Actions**」にする（以後は push するたびに `.github/workflows/pages.yml` がテストと公開を行う）
 3. 数分後に `https://masaki5711-program.github.io/addin_outlook/taskpane.html` が開けることを確認する
 
 ユーザー名やリポジトリ名が違う場合は、`manifest.xml` の
