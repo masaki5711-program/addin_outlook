@@ -31,12 +31,12 @@
 
 ## 公開手順（初回のみ）
 
-1. GitHub で `outlook-mail-assist` という **Public** リポジトリを作り、このフォルダを push する
+1. GitHub で `addin_outlook` という **Public** リポジトリを作り、このフォルダを push する
 2. リポジトリの **Settings → Pages** で Source を「Deploy from a branch」、Branch を `main` / `/ (root)` にする
-3. 数分後に `https://<ユーザー名>.github.io/outlook-mail-assist/taskpane.html` が開けることを確認する
+3. 数分後に `https://masaki5711-program.github.io/addin_outlook/taskpane.html` が開けることを確認する
 
 ユーザー名やリポジトリ名が違う場合は、`manifest.xml` の
-`https://masaki5711.github.io/outlook-mail-assist` をすべて置き換えてください。
+`https://masaki5711-program.github.io/addin_outlook` をすべて置き換えてください。
 
 ## Outlook への追加
 
