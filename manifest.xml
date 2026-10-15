@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xsi:type="MailApp">
+  <Id>930d2af6-896a-4944-94c6-c5787a814f25</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Masaki5711</ProviderName>
+  <DefaultLocale>ja-JP</DefaultLocale>
+  <DisplayName DefaultValue="Mail Assist"/>
+  <Description DefaultValue="定型文テンプレートの挿入と宛名の自動入力"/>
+  <IconUrl DefaultValue="https://masaki5711.github.io/outlook-mail-assist/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://masaki5711.github.io/outlook-mail-assist/assets/icon-128.png"/>
+  <SupportUrl DefaultValue="https://masaki5711.github.io/outlook-mail-assist/"/>
+  <AppDomains>
+    <AppDomain>https://masaki5711.github.io</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.1"/>
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemRead">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://masaki5711.github.io/outlook-mail-assist/taskpane.html"/>
+        <RequestedHeight>250</RequestedHeight>
+      </DesktopSettings>
+    </Form>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://masaki5711.github.io/outlook-mail-assist/taskpane.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
+  </Rule>
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <Requirements>
+      <bt:Sets DefaultMinVersion="1.3">
+        <bt:Set Name="Mailbox"/>
+      </bt:Sets>
+    </Requirements>
+    <Hosts>
+      <Host xsi:type="MailHost">
+        <DesktopFormFactor>
+          <FunctionFile resid="Commands.Url"/>
+
+          <!-- メール作成画面 -->
+          <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="mailAssistComposeGroup">
+                <Label resid="Group.Label"/>
+                <Control xsi:type="Button" id="mailAssistComposeTemplates">
+                  <Label resid="Templates.Label"/>
+                  <Supertip>
+                    <Title resid="Templates.Label"/>
+                    <Description resid="Templates.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+                <Control xsi:type="Button" id="mailAssistComposeSalutation">
+                  <Label resid="Salutation.Label"/>
+                  <Supertip>
+                    <Title resid="Salutation.Label"/>
+                    <Description resid="Salutation.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ExecuteFunction">
+                    <FunctionName>insertSalutation</FunctionName>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+
+          <!-- メール閲覧画面 -->
+          <ExtensionPoint xsi:type="MessageReadCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="mailAssistReadGroup">
+                <Label resid="Group.Label"/>
+                <Control xsi:type="Button" id="mailAssistReadTemplates">
+                  <Label resid="Reply.Label"/>
+                  <Supertip>
+                    <Title resid="Reply.Label"/>
+                    <Description resid="Reply.Tooltip"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+        </DesktopFormFactor>
+      </Host>
+    </Hosts>
+
+    <Resources>
+      <bt:Images>
+        <bt:Image id="Icon.16x16" DefaultValue="https://masaki5711.github.io/outlook-mail-assist/assets/icon-16.png"/>
+        <bt:Image id="Icon.32x32" DefaultValue="https://masaki5711.github.io/outlook-mail-assist/assets/icon-32.png"/>
+        <bt:Image id="Icon.80x80" DefaultValue="https://masaki5711.github.io/outlook-mail-assist/assets/icon-80.png"/>
+      </bt:Images>
+      <bt:Urls>
+        <bt:Url id="Commands.Url" DefaultValue="https://masaki5711.github.io/outlook-mail-assist/commands.html"/>
+        <bt:Url id="Taskpane.Url" DefaultValue="https://masaki5711.github.io/outlook-mail-assist/taskpane.html"/>
+      </bt:Urls>
+      <bt:ShortStrings>
+        <bt:String id="Group.Label" DefaultValue="Mail Assist"/>
+        <bt:String id="Templates.Label" DefaultValue="テンプレート"/>
+        <bt:String id="Salutation.Label" DefaultValue="宛名を挿入"/>
+        <bt:String id="Reply.Label" DefaultValue="テンプレートで返信"/>
+      </bt:ShortStrings>
+      <bt:LongStrings>
+        <bt:String id="Templates.Tooltip" DefaultValue="定型文テンプレートをカーソル位置に挿入します。"/>
+        <bt:String id="Salutation.Tooltip" DefaultValue="宛先（To）の名前から「山田様」などの宛名を本文の先頭に入れます。"/>
+        <bt:String id="Reply.Tooltip" DefaultValue="テンプレートを使って返信メールを作成します。"/>
+      </bt:LongStrings>
+    </Resources>
+  </VersionOverrides>
+</OfficeApp>

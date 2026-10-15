@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mail Assist</title>
+  <link rel="stylesheet" href="css/taskpane.css">
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <script type="module" src="js/taskpane.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <h1>Mail Assist</h1>
+    <div class="bar-actions">
+      <button id="btn-new" class="icon" title="新しいテンプレート" aria-label="新しいテンプレート">＋</button>
+      <button id="btn-settings" class="icon" title="設定" aria-label="設定">⚙</button>
+    </div>
+  </header>
+
+  <main>
+    <p id="loading" class="muted">読み込み中…</p>
+
+    <!-- 一覧 -->
+    <section id="view-list" class="view" hidden>
+      <input id="search" type="search" placeholder="テンプレートを検索" autocomplete="off">
+      <p id="ctx-info" class="ctx"></p>
+      <div id="list"></div>
+    </section>
+
+    <!-- 挿入前の確認 -->
+    <section id="view-detail" class="view" hidden>
+      <button class="back" data-back>← 一覧へ</button>
+      <h2 id="d-name"></h2>
+      <div id="d-inputs" class="fields"></div>
+      <label id="d-subject-row" class="check"><input type="checkbox" id="d-set-subject"> 件名も設定する</label>
+      <div class="preview">
+        <div id="d-subject" class="preview-subject"></div>
+        <pre id="d-body"></pre>
+      </div>
+      <div id="d-actions-compose" class="actions">
+        <button id="d-insert" class="primary">カーソル位置に挿入</button>
+      </div>
+      <div id="d-actions-read" class="actions" hidden>
+        <button id="d-reply" class="primary">返信</button>
+        <button id="d-reply-all">全員に返信</button>
+      </div>
+      <button id="d-edit" class="link">このテンプレートを編集</button>
+    </section>
+
+    <!-- 編集 -->
+    <section id="view-edit" class="view" hidden>
+      <button class="back" data-back>← 一覧へ</button>
+      <h2 id="e-title"></h2>
+      <div class="fields">
+        <label>名前<input id="e-name" autocomplete="off"></label>
+        <label>カテゴリ<input id="e-category" list="categories" autocomplete="off" placeholder="例：社外"></label>
+        <datalist id="categories"></datalist>
+        <label>件名（空欄なら件名は変えません）<input id="e-subject" autocomplete="off"></label>
+        <label>本文<textarea id="e-body" rows="12"></textarea></label>
+      </div>
+      <p class="muted small">クリックでカーソル位置に差し込み：</p>
+      <div id="e-chips" class="chips"></div>
+      <div class="actions">
+        <button id="e-save" class="primary">保存</button>
+        <button id="e-up" title="上へ移動">↑</button>
+        <button id="e-down" title="下へ移動">↓</button>
+        <button id="e-delete" class="danger">削除</button>
+      </div>
+    </section>
+
+    <!-- 設定 -->
+    <section id="view-settings" class="view" hidden>
+      <button class="back" data-back>← 一覧へ</button>
+      <h2>設定</h2>
+
+      <h3>宛名（{宛名}）の作り方</h3>
+      <div class="fields">
+        <label>名前
+          <select id="s-style">
+            <option value="family">姓のみ（山田様）</option>
+            <option value="full">フルネーム（山田 太郎様）</option>
+          </select>
+        </label>
+        <label>敬称<input id="s-honorific"></label>
+        <label>この人数を超えたらまとめる<input id="s-max" type="number" min="1" max="20"></label>
+        <label>まとめるときの表記<input id="s-group"></label>
+        <label>名前が分からないとき<input id="s-unknown"></label>
+      </div>
+      <p class="muted small">現在の宛先では：<strong id="s-preview"></strong></p>
+      <div class="actions"><button id="s-save" class="primary">設定を保存</button></div>
+
+      <h3>テンプレートの共有</h3>
+      <p class="muted small">書き出した文字列を同僚に渡し、読み込んでもらうと同じテンプレートを使えます。</p>
+      <div class="actions"><button id="s-export">書き出す</button><button id="s-copy" hidden>コピー</button></div>
+      <textarea id="s-export-text" rows="6" readonly hidden></textarea>
+      <label class="block">読み込み（書き出した文字列を貼り付け）<textarea id="s-import-text" rows="6"></textarea></label>
+      <div class="actions">
+        <button id="s-import-add">追加する</button>
+        <button id="s-import-replace" class="danger">置き換える</button>
+      </div>
+
+      <h3>その他</h3>
+      <p class="muted small" id="s-usage"></p>
+      <div class="actions"><button id="s-reset" class="danger">サンプルに戻す</button></div>
+    </section>
+  </main>
+
+  <div id="toast" role="status" hidden></div>
+</body>
+</html>

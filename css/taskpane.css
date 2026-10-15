@@ -1,0 +1,154 @@
+:root {
+  --bg: #ffffff;
+  --fg: #242424;
+  --muted: #616161;
+  --line: #e0e0e0;
+  --hover: #f5f5f5;
+  --accent: #0f6cbd;
+  --accent-fg: #ffffff;
+  --danger: #c50f1f;
+  --preview-bg: #fafafa;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f1f1f;
+    --fg: #f0f0f0;
+    --muted: #adadad;
+    --line: #3d3d3d;
+    --hover: #2b2b2b;
+    --accent: #479ef5;
+    --accent-fg: #0a0a0a;
+    --danger: #f1707b;
+    --preview-bg: #292929;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 "Segoe UI", "Yu Gothic UI", "Meiryo UI", sans-serif;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.bar h1 { margin: 0; font-size: 15px; font-weight: 600; }
+.bar-actions { display: flex; gap: 4px; }
+
+main { padding: 12px; }
+h2 { margin: 4px 0 12px; font-size: 16px; }
+h3 { margin: 20px 0 6px; font-size: 12px; font-weight: 600; color: var(--muted); }
+#list h3:first-child { margin-top: 4px; }
+
+button {
+  font: inherit;
+  color: inherit;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  cursor: pointer;
+}
+button:hover { background: var(--hover); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+button.primary:hover { filter: brightness(1.08); }
+button.danger { color: var(--danger); }
+button.danger.armed { background: var(--danger); border-color: var(--danger); color: var(--bg); }
+button.icon { width: 32px; height: 32px; padding: 0; font-size: 16px; border-color: transparent; }
+button.link, button.back { border: none; background: none; padding: 4px 0; color: var(--accent); }
+button.back { margin-bottom: 4px; }
+
+input, select, textarea {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+textarea { resize: vertical; }
+input[type="checkbox"] { width: auto; margin: 0 6px 0 0; }
+
+.fields { display: grid; gap: 10px; margin-bottom: 12px; }
+.fields label, label.block { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+label.block { margin-top: 10px; }
+label.check { display: flex; align-items: center; margin-bottom: 10px; font-size: 13px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+
+.muted { color: var(--muted); }
+.small { font-size: 12px; margin: 6px 0; }
+.ctx { margin: 8px 0 4px; font-size: 12px; color: var(--muted); }
+.empty { color: var(--muted); text-align: center; padding: 24px 0; }
+
+#search { margin-bottom: 4px; }
+
+.tpl {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+}
+.tpl-name { display: block; font-weight: 600; }
+.tpl-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--preview-bg);
+  padding: 10px;
+}
+.preview-subject {
+  font-weight: 600;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+.preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font: inherit;
+  font-size: 13px;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.chips button { padding: 2px 8px; font-size: 12px; border-radius: 12px; }
+
+#toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+}
+#toast.error { background: var(--danger); color: #ffffff; }

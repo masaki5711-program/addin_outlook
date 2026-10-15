@@ -1,0 +1,11 @@
+{
+  "name": "outlook-mail-assist",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Outlook add-in: insert email templates and salutations",
+  "scripts": {
+    "test": "node --test",
+    "validate": "npx --yes office-addin-manifest validate manifest.xml"
+  }
+}
