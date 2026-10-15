@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { render, extractInputs, textToHtml, nextWeekday, addBusinessDays, formatDate } from '../js/lib/render.js';
 import { buildSalutation, cleanName } from '../js/lib/salutation.js';
 import { parseImport, exportJson } from '../js/lib/store.js';
+import { parseRecipients, invalidAddresses, missingRecipients, formatRecipients, toOfficeRecipients } from '../js/lib/recipients.js';
 
 const THU = new Date(2026, 9, 15); // 2026-10-15 (木)
 
@@ -63,11 +64,36 @@ test('宛名', () => {
   assert.equal(buildSalutation([]), '');
 });
 
+test('To / CC の解析', () => {
+  const list = parseRecipients('山田 太郎 <Yamada@example.com>; sato@example.com、\n "Ito" <ito@example.com>;');
+  assert.deepEqual(list, [
+    { displayName: '山田 太郎', emailAddress: 'Yamada@example.com' },
+    { displayName: '', emailAddress: 'sato@example.com' },
+    { displayName: 'Ito', emailAddress: 'ito@example.com' },
+  ]);
+  assert.deepEqual(parseRecipients(''), []);
+  assert.deepEqual(parseRecipients(undefined), []);
+  assert.deepEqual(invalidAddresses(parseRecipients('ok@example.com; bad; x@y')), ['bad', 'x@y']);
+  assert.equal(formatRecipients(list.slice(0, 2)), '山田 太郎 <Yamada@example.com>; sato@example.com');
+  assert.deepEqual(toOfficeRecipients(list.slice(0, 2)), [
+    { displayName: '山田 太郎', emailAddress: 'Yamada@example.com' },
+    'sato@example.com',
+  ]);
+});
+
+test('すでに入っている宛先は追加しない', () => {
+  const existing = [{ displayName: 'Yamada', emailAddress: 'yamada@example.com' }];
+  const wanted = parseRecipients('YAMADA@example.com; sato@example.com; Sato@example.com');
+  assert.deepEqual(missingRecipients(existing, wanted).map((r) => r.emailAddress), ['sato@example.com']);
+});
+
 test('書き出し → 読み込み', () => {
-  const json = exportJson([{ id: '1', category: '社外', name: 'お礼', subject: 's', body: 'b' }]);
+  const json = exportJson([{ id: '1', category: '社外', name: 'お礼', to: 'a@example.com', cc: '', subject: 's', body: 'b' }]);
   const list = parseImport(json);
   assert.equal(list.length, 1);
   assert.equal(list[0].name, 'お礼');
+  assert.equal(list[0].to, 'a@example.com');
+  assert.equal(parseImport('[{"name":"x","body":"y"}]')[0].cc, '');
   assert.ok(list[0].id && list[0].id !== '1');
   assert.throws(() => parseImport('{'), /JSON/);
   assert.throws(() => parseImport('[{"name":"x"}]'), /body/);

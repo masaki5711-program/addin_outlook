@@ -29,6 +29,15 @@
 
 宛名の作り方（姓のみ／フルネーム、敬称、まとめる人数）は ⚙ 設定で変えられます。
 
+## 宛先（To / CC）
+
+テンプレートに To・CC を書いておくと、挿入時に宛先へ**追加**されます（空欄なら今の宛先のまま）。
+
+- 書き方：`山田 太郎 <yamada@example.com>; sato@example.com`（複数は `;` 区切り）
+- すでに To・CC に入っている人は追加しません
+- `{宛名}` は追加された人も含めて作られます
+- 閲覧画面の「返信」では Outlook の仕様で宛先を指定できないため、返信画面を開いてからテンプレートを挿入してください
+
 ## 公開手順（初回のみ）
 
 1. GitHub で `addin_outlook` という **Public** リポジトリを作り、このフォルダを push する
@@ -61,6 +70,7 @@ npm run validate   # マニフェストの検証（Microsoft のサービスを�
 | `commands.html` / `js/commands.js` | 「宛名を挿入」ボタンの処理 |
 | `js/lib/render.js` | 変数の展開 |
 | `js/lib/salutation.js` | 宛名の作成 |
+| `js/lib/recipients.js` | To / CC の解析 |
 | `js/lib/store.js` | 保存・書き出し・読み込み |
 | `js/lib/defaults.js` | 初期テンプレート |
 | `tools/make-icons.ps1` | アイコン PNG の生成 |

@@ -54,7 +54,7 @@ export async function saveSettings(settings) {
 }
 
 export function exportJson(templates) {
-  const list = templates.map(({ category, name, subject, body }) => ({ category, name, subject, body }));
+  const list = templates.map(({ category, name, to, cc, subject, body }) => ({ category, name, to, cc, subject, body }));
   return JSON.stringify({ app: 'mail-assist', version: 1, templates: list }, null, 2);
 }
 
@@ -71,6 +71,14 @@ export function parseImport(text) {
     if (typeof t?.name !== 'string' || typeof t?.body !== 'string') {
       throw new Error(`${i + 1} 件目に name または body がありません`);
     }
-    return { id: newId(), category: String(t.category ?? ''), name: t.name, subject: String(t.subject ?? ''), body: t.body };
+    return {
+      id: newId(),
+      category: String(t.category ?? ''),
+      name: t.name,
+      to: String(t.to ?? ''),
+      cc: String(t.cc ?? ''),
+      subject: String(t.subject ?? ''),
+      body: t.body,
+    };
   });
 }

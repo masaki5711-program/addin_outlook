@@ -34,6 +34,7 @@
       <div id="d-inputs" class="fields"></div>
       <label id="d-subject-row" class="check"><input type="checkbox" id="d-set-subject"> 件名も設定する</label>
       <div class="preview">
+        <div id="d-recipients" class="preview-recipients"></div>
         <div id="d-subject" class="preview-subject"></div>
         <pre id="d-body"></pre>
       </div>
@@ -55,6 +56,8 @@
         <label>名前<input id="e-name" autocomplete="off"></label>
         <label>カテゴリ<input id="e-category" list="categories" autocomplete="off" placeholder="例：社外"></label>
         <datalist id="categories"></datalist>
+        <label>宛先 To（空欄ならそのまま。記入すると追加）<input id="e-to" autocomplete="off" placeholder="山田 太郎 &lt;yamada@example.com&gt;; sato@example.com"></label>
+        <label>CC（空欄ならそのまま。記入すると追加）<input id="e-cc" autocomplete="off" placeholder="複数はセミコロン（;）で区切る"></label>
         <label>件名（空欄なら件名は変えません）<input id="e-subject" autocomplete="off"></label>
         <label>本文<textarea id="e-body" rows="12"></textarea></label>
       </div>

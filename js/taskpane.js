@@ -1,5 +1,6 @@
 import { render, extractInputs, textToHtml } from './lib/render.js';
 import { buildSalutation } from './lib/salutation.js';
+import { parseRecipients, invalidAddresses, missingRecipients, formatRecipients, toOfficeRecipients } from './lib/recipients.js';
 import * as store from './lib/store.js';
 
 const CHIPS = [
@@ -22,6 +23,8 @@ const state = {
   templates: [],
   settings: null,
   ctx: {},
+  to: [], // 作成中メールの今の To / CC
+  cc: [],
   current: null, // 確認画面で開いているテンプレート
   editing: null, // 編集中のテンプレート id（新規は null）
   lastField: null, // 差し込みボタンの挿入先
@@ -53,15 +56,31 @@ async function refreshContext() {
       const from = item.from ? [item.from] : [];
       state.ctx = { myName, subject: item.subject ?? '', salutation: buildSalutation(from, settings) };
     } else {
-      const [to, subject] = await Promise.all([
+      const [to, cc, subject] = await Promise.all([
         call((cb) => item.to.getAsync(cb)),
+        call((cb) => item.cc.getAsync(cb)),
         call((cb) => item.subject.getAsync(cb)),
       ]);
+      Object.assign(state, { to, cc });
       state.ctx = { myName, subject, salutation: buildSalutation(to, settings) };
     }
   } catch {
     state.ctx = { myName, subject: '', salutation: '' };
   }
+}
+
+// テンプレートの To / CC のうち、まだ入っていない人（To・CC のどちらかに居れば追加しない）
+function recipientsToAdd(tpl) {
+  const to = missingRecipients([...state.to, ...state.cc], parseRecipients(tpl.to));
+  const cc = missingRecipients([...state.to, ...state.cc, ...to], parseRecipients(tpl.cc));
+  return { to, cc };
+}
+
+// {宛名} はテンプレートで追加する To も含めて作る
+function previewCtx() {
+  if (state.isRead || !state.current) return state.ctx;
+  const { to } = recipientsToAdd(state.current);
+  return { ...state.ctx, salutation: buildSalutation([...state.to, ...to], state.settings) };
 }
 
 function el(tag, props = {}, ...children) {
@@ -187,6 +206,7 @@ async function showDetail(id) {
   $('d-set-subject').checked = hasSubject && !state.ctx.subject;
   $('d-actions-compose').hidden = state.isRead;
   $('d-actions-read').hidden = !state.isRead;
+  showRecipients(tpl);
 
   updatePreview();
   show('view-detail');
@@ -199,12 +219,29 @@ function inputValues() {
   return values;
 }
 
+function showRecipients(tpl) {
+  const box = $('d-recipients');
+  box.replaceChildren();
+  if (tpl.to?.trim() || tpl.cc?.trim()) {
+    if (state.isRead) {
+      box.append(el('div', {}, '※ 返信では To / CC は追加されません。返信画面でこのテンプレートを挿入すると追加されます'));
+    } else {
+      const { to, cc } = recipientsToAdd(tpl);
+      if (to.length) box.append(el('div', {}, `To に追加：${formatRecipients(to)}`));
+      if (cc.length) box.append(el('div', {}, `CC に追加：${formatRecipients(cc)}`));
+      if (!to.length && !cc.length) box.append(el('div', {}, 'To / CC：すでに入っています'));
+    }
+  }
+  box.hidden = !box.childElementCount;
+}
+
 function rendered() {
   const tpl = state.current;
+  const ctx = previewCtx();
   const values = inputValues();
   return {
-    subject: tpl.subject ? render(tpl.subject, state.ctx, values) : '',
-    body: render(tpl.body, state.ctx, values),
+    subject: tpl.subject ? render(tpl.subject, ctx, values) : '',
+    body: render(tpl.body, ctx, values),
   };
 }
 
@@ -217,8 +254,15 @@ function updatePreview() {
 
 async function insertIntoBody() {
   const { item } = state;
-  const r = rendered();
   try {
+    // 宛先を先に入れ、Outlook が名前を解決した後の表示名で {宛名} を作る
+    await refreshContext();
+    const { to, cc } = recipientsToAdd(state.current);
+    if (to.length) await call((cb) => item.to.addAsync(toOfficeRecipients(to), cb));
+    if (cc.length) await call((cb) => item.cc.addAsync(toOfficeRecipients(cc), cb));
+    if (to.length || cc.length) await refreshContext();
+
+    const r = rendered();
     const type = await call((cb) => item.body.getTypeAsync(cb));
     const html = type === Office.CoercionType.Html;
     await call((cb) =>
@@ -227,7 +271,10 @@ async function insertIntoBody() {
     if (r.subject && $('d-set-subject').checked) {
       await call((cb) => item.subject.setAsync(r.subject, cb));
     }
-    toast('挿入しました');
+    const added = to.length + cc.length;
+    toast(added ? `挿入しました（宛先を ${added} 件追加）` : '挿入しました');
+    showRecipients(state.current);
+    updatePreview();
   } catch (e) {
     toast(`挿入できませんでした：${e.message}`, true);
   }
@@ -247,6 +294,8 @@ function showEditor(id) {
   $('e-title').textContent = tpl ? 'テンプレートを編集' : '新しいテンプレート';
   $('e-name').value = tpl?.name ?? '';
   $('e-category').value = tpl?.category ?? '';
+  $('e-to').value = tpl?.to ?? '';
+  $('e-cc').value = tpl?.cc ?? '';
   $('e-subject').value = tpl?.subject ?? '';
   $('e-body').value = tpl?.body ?? '{宛名}\n\nいつもお世話になっております。{自分}です。\n\n\n\nよろしくお願いいたします。';
   $('categories').replaceChildren(...categories().map((c) => el('option', { value: c })));
@@ -268,10 +317,14 @@ async function saveTemplate() {
   const data = {
     name: $('e-name').value.trim(),
     category: $('e-category').value.trim(),
+    to: $('e-to').value.trim(),
+    cc: $('e-cc').value.trim(),
     subject: $('e-subject').value.trim(),
     body: $('e-body').value.replace(/\s+$/, ''),
   };
   if (!data.name || !data.body) return toast('名前と本文を入力してください', true);
+  const invalid = invalidAddresses([...parseRecipients(data.to), ...parseRecipients(data.cc)]);
+  if (invalid.length) return toast(`メールアドレスの形式が正しくありません：${invalid.join(', ')}`, true);
 
   const list = [...state.templates];
   const i = list.findIndex((t) => t.id === state.editing);
